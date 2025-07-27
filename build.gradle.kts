@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
+    id ("kotlin-kapt")
+    id ("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
 }
 
@@ -43,7 +45,12 @@ android {
 
 dependencies {
 
+    implementation ("com.google.dagger:hilt-android:2.51")
 
+    kapt ("com.google.dagger:hilt-compiler:2.51")
+    // If using Jetpack ViewModel with Hilt:
+    implementation ("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
+    kapt ("androidx.hilt:hilt-compiler:1.0.0")
 
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
