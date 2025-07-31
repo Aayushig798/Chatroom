@@ -46,13 +46,14 @@ fun Navigation (navController : NavHostController,authViewModel: AuthViewModel,r
         composable(Screen.ChatRoomsScreen.route){
             ChatRoomsListScreen(
                 navController ,roomViewModel){
-                navController.navigate("${Screen.ChatScreen.route}/${it.id}")
+                navController.navigate("${Screen.ChatScreen.route}/${it.id}/${it.name}")
             }
         }
-            composable("${Screen.ChatScreen.route}/{roomID}"){ navBackStackEntry ->
+            composable("${Screen.ChatScreen.route}/{roomID}/{roomName}"){ navBackStackEntry ->
                 val roomID = navBackStackEntry.arguments?.getString("roomID") ?: ""
+                val roomName = navBackStackEntry.arguments?.getString("roomName") ?: ""
 
-                ChatScreen(roomID,messageViewModel)
+                ChatScreen(navController,roomID,roomName,messageViewModel)
 
         }
     }

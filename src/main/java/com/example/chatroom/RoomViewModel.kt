@@ -16,6 +16,9 @@ import javax.inject.Inject
 class RoomViewModel@Inject constructor( private val roomRepository:RoomRepository)
 :ViewModel() {
 
+    private val _isLoading = MutableLiveData(true)
+    val isLoading: LiveData<Boolean> = _isLoading
+
 
     private val _rooms = MutableLiveData<List<Room>>()
     val rooms:LiveData<List<Room>> get() = _rooms
@@ -33,7 +36,10 @@ class RoomViewModel@Inject constructor( private val roomRepository:RoomRepositor
      fun loadRooms() {
          viewModelScope.launch {
              when (val result = roomRepository.getRooms()) {
-                 is Result.Success -> _rooms.value = result.data
+                 is Result.Success -> {
+                     _rooms.value = result.data
+                     _isLoading.value = false
+                 }
                  is Result.Error ->{}
              }
          }

@@ -32,9 +32,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontStyle
@@ -50,6 +52,7 @@ fun ChatRoomsListScreen(navController : NavHostController, roomViewModel: RoomVi
     var showDialog by remember { mutableStateOf(false) }
     var chatRoomName by remember { mutableStateOf("") }
     val rooms by roomViewModel.rooms.observeAsState(emptyList())
+    val isloading by roomViewModel.isLoading.observeAsState(true)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxWidth(),
@@ -67,9 +70,13 @@ fun ChatRoomsListScreen(navController : NavHostController, roomViewModel: RoomVi
                     .padding(10.dp).clickable { navController.navigate(Screen.SignupScreen.route) }
             )
         }
-        LazyColumn (modifier=Modifier.padding(5.dp)){
-            items(rooms, key = { room -> room.id }) { room ->
-                RoomItem(room,onJoinClicked)
+        if(isloading){
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally), color = colorResource(id = R.color.app_color))
+        }else {
+            LazyColumn(modifier = Modifier.padding(5.dp)) {
+                items(rooms, key = { room -> room.id }) { room ->
+                    RoomItem(room, onJoinClicked)
+                }
             }
         }
             Button(onClick = {showDialog=true}, colors = ButtonColors(
@@ -122,6 +129,7 @@ fun ChatRoomsListScreen(navController : NavHostController, roomViewModel: RoomVi
             )
         }
     }
+
 
 
 

@@ -22,6 +22,10 @@ class MessageViewModel @Inject constructor(private val messageRepository: Messag
     private val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> get() = _messages
 
+    private val _isLoading = MutableLiveData<Boolean>(true)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+
     private val _roomId = MutableLiveData<String>()
     private val _currentUser = MutableLiveData<User>()
     val currentUser: LiveData<User> get() = _currentUser
