@@ -1,15 +1,20 @@
 package com.example.chatroom
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class RoomRepository(private val firestore: FirebaseFirestore) {
+class RoomRepository @Inject constructor(private val firestore: FirebaseFirestore) {
     suspend fun createRoom( name:String) :Result<Unit> =
         try{
             val room = Room(name=name)
+            Log.d("RoomRepository", "Creating room: $room")
             firestore.collection("rooms").add(room).await()
+            Log.d("RoomRepository", "Room created successfully")
             Result.Success(Unit)
         }catch(e:Exception){
+            Log.e("RoomRepository", "Failed to create room", e)
             Result.Error(e)
         }
 

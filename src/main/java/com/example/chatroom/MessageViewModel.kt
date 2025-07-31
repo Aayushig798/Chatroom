@@ -1,25 +1,23 @@
 package com.example.chatroom
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MessageViewModel : ViewModel() {
 
-    private val messageRepository: MessageRepository
-    private val userRepository: UserRepository
+@HiltViewModel
+class MessageViewModel @Inject constructor(private val messageRepository: MessageRepository,
+                                           private val userRepository: UserRepository) : ViewModel() {
 
-    init {
-        messageRepository = MessageRepository(Injection.instance())
-        userRepository = UserRepository(
-            FirebaseAuth.getInstance(),
-            Injection.instance()
-        )
-        loadCurrentUser()
-    }
+
+
+
 
     private val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> get() = _messages
@@ -28,12 +26,20 @@ class MessageViewModel : ViewModel() {
     private val _currentUser = MutableLiveData<User>()
     val currentUser: LiveData<User> get() = _currentUser
 
-    private fun loadCurrentUser() {
+    init {
+        loadCurrentUser()
+    }
+
+    public fun loadCurrentUser() {
         viewModelScope.launch {
             when (val result = userRepository.getCurrentUser()) {
-                is Result.Success -> _currentUser.value = result.data
-
-                is Result.Error -> TODO()
+                is Result.Success -> {
+                    _currentUser.value = result.data
+                    Log.d("MessageViewModel", "User loaded: ${result.data}")
+                }
+                is Result.Error -> {
+                    Log.e("MessageViewModel", "Failed to load user", result.exception)
+                }
             }
         }
     }
@@ -46,13 +52,19 @@ class MessageViewModel : ViewModel() {
     }
 
     fun sendMessage(text: String) {
+        Log.d("MessageViewModel", "sendMessage called")
+        try{
+            Log.d("messageview","in try block before if:${_currentUser.value}")
         if (_currentUser.value != null) {
             val message = Message(
                 senderFirstName = _currentUser.value!!.firstName,
                 senderId = _currentUser.value!!.email,
-                text = text
+                text = text,
+                timestamp =System.currentTimeMillis()
             )
+            Log.d("messageview","in try block after if")
             viewModelScope.launch {
+                Log.d("MessageViewModel", "Calling repository.sendMessage")
                 when (messageRepository.sendMessage(_roomId.value.toString(), message)) {
                     is Result.Success -> Unit
                     is Result.Error -> {
@@ -61,9 +73,14 @@ class MessageViewModel : ViewModel() {
                 }
             }
         }
+    }catch(e:Exception){
+        Log.d("messageview model","IN EXCEPTION BLOCK",e)
+
+        }
     }
 
     fun setRoomId(roomId: String) {
+        Log.d("MessageViewModel", "setRoomId: $roomId")
         _roomId.value = roomId
         loadMessages()
     }

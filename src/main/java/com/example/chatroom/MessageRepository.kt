@@ -1,19 +1,24 @@
 package com.example.chatroom
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class MessageRepository(private val firestore: FirebaseFirestore) {
+class MessageRepository @Inject constructor(private val firestore: FirebaseFirestore) {
 
     suspend fun sendMessage(roomId:String , message: Message) : Result<Unit> =
         try{
+            Log.d("message","insend")
             firestore.collection("rooms").document(roomId).collection("messages")
                 .add(message).await()
+            Log.d("message","messagecollectioncreated")
             Result.Success(Unit)
         }catch(e:Exception){
+            Log.d("message","failedto create",e)
             Result.Error(e)
         }
 

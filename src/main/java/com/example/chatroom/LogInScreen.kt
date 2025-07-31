@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -29,13 +30,28 @@ import androidx.navigation.NavController
 @Composable
 fun LogInScreen(
 navController: NavController,
-authViewModel: AuthViewModel
+authViewModel: AuthViewModel,
+messageViewModel: MessageViewModel
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember {
         mutableStateOf("")
     }
     val result by authViewModel.authResult.observeAsState()
+
+    LaunchedEffect(result){
+        when(result){
+            is Result.Success -> {
+                messageViewModel.loadCurrentUser()
+                navController.navigate(Screen.ChatRoomsScreen.route)
+            }
+            is Result.Error -> {
+
+            }
+
+            else -> { }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -63,18 +79,6 @@ authViewModel: AuthViewModel
         )
         Button(
             onClick = {authViewModel.login(email, password)
-                when (result) {
-                    is Result.Success->{
-                        navController.navigate(Screen.ChatRoomsScreen.route)
-                    }
-                    is Result.Error ->{
-
-                    }
-
-                    else -> {
-
-                    }
-                }
 
             },
             modifier = Modifier

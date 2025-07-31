@@ -31,7 +31,7 @@ fun ChatMessageItem(message: Message) {
         horizontalAlignment = if (message.isSentByCurrentUser) Alignment.End else Alignment.Start){
             Box(modifier = Modifier
                 .background(
-                    if (message.isSentByCurrentUser) colorResource(id = R.color.purple_700) else Color.Gray,
+                    if (message.isSentByCurrentUser) colorResource(id = R.color.app_color) else Color.Gray,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(8.dp)){

@@ -5,17 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    private val userRepository: UserRepository
 
-    init {
-        userRepository = UserRepository(
-            FirebaseAuth.getInstance(),
-            Injection.instance()
-        )
-    }
+@HiltViewModel
+class AuthViewModel @Inject constructor (
+    private val userRepository: UserRepository):ViewModel(){
+
+
     private val _authResult = MutableLiveData<Result<Boolean>>()
     val authResult: LiveData<Result<Boolean>> get() = _authResult
 
@@ -27,7 +26,13 @@ class AuthViewModel : ViewModel() {
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            _authResult.value = userRepository.login(email, password)
+            when(val result = userRepository.login(email,password)){
+                is Result.Success -> {
+                    _authResult.value = result
+                    userRepository.getCurrentUser()
+                }
+                is Result.Error ->{}
+            }
         }
     }
 }
