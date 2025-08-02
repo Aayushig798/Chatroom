@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,13 +32,13 @@ fun ChatMessageItem(message: Message) {
         horizontalAlignment = if (message.isSentByCurrentUser) Alignment.End else Alignment.Start){
             Box(modifier = Modifier
                 .background(
-                    if (message.isSentByCurrentUser) colorResource(id = R.color.app_color) else Color.Gray,
+                    if (message.isSentByCurrentUser) MaterialTheme.colorScheme.primary else Color.Gray,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(8.dp)){
                 Text(
                     text = message.text,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     style = TextStyle(fontSize = 16.sp)
                 )
             }
@@ -46,14 +47,14 @@ fun ChatMessageItem(message: Message) {
             text = message.senderFirstName,
             style = TextStyle(
                 fontSize = 12.sp,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onBackground
             )
         )
         Text(
             text = formatTimeStamp(message.timestamp), // Replace with actual timestamp logic
             style = TextStyle(
                 fontSize = 12.sp,
-                color = Color.Gray
+                color =  MaterialTheme.colorScheme.onBackground
             )
         )
     }

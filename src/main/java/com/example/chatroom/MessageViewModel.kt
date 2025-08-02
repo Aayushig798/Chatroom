@@ -6,6 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +31,7 @@ class MessageViewModel @Inject constructor(private val messageRepository: Messag
 
 
     private val _roomId = MutableLiveData<String>()
+
     private val _currentUser = MutableLiveData<User>()
     val currentUser: LiveData<User> get() = _currentUser
 
@@ -87,5 +92,30 @@ class MessageViewModel @Inject constructor(private val messageRepository: Messag
         Log.d("MessageViewModel", "setRoomId: $roomId")
         _roomId.value = roomId
         loadMessages()
+    }
+
+    fun setTypingStatus(roomID:String , userID:String, isTyping:Boolean){
+        val typingRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomID).child("typing")
+        typingRef.setValue(if(isTyping) userID else "")
+    }
+
+    fun observeTypingStatus(roomId:String , currentUserID:String,onTypingChanged:(Boolean)->Unit){
+        val typingRef = FirebaseDatabase.getInstance()
+            .getReference("rooms")
+            .child(roomId)
+            .child("typing")
+
+        typingRef.addValueEventListener(object:ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val typingUser = snapshot.getValue(String::class.java)
+                onTypingChanged(
+                    !typingUser.isNullOrBlank() && typingUser != currentUserID
+                )
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
     }
 }

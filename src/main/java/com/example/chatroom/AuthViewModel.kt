@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -33,6 +34,12 @@ class AuthViewModel @Inject constructor (
                 }
                 is Result.Error ->{}
             }
+        }
+    }
+
+    fun logOut(){
+        viewModelScope.launch {
+            userRepository.logOut()
         }
     }
 }

@@ -8,9 +8,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemDefaults.contentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -38,6 +49,7 @@ messageViewModel: MessageViewModel
         mutableStateOf("")
     }
     val result by authViewModel.authResult.observeAsState()
+    var passwordVisible by remember{ mutableStateOf(false) }
 
     LaunchedEffect(result){
         when(result){
@@ -66,7 +78,11 @@ messageViewModel: MessageViewModel
             label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedBorderColor =  MaterialTheme.colorScheme.onBackground
+            )
         )
         OutlinedTextField(
             value = password,
@@ -75,12 +91,30 @@ messageViewModel: MessageViewModel
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            visualTransformation = PasswordVisualTransformation()
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedBorderColor =  MaterialTheme.colorScheme.onBackground
+            ),
+            visualTransformation = if(passwordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
+            trailingIcon = {
+                val image = if(passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                IconButton(onClick = {passwordVisible = !passwordVisible}){
+                    Icon(imageVector = image , contentDescription = null)
+                }
+            }
         )
         Button(
-            onClick = {authViewModel.login(email, password)
+            onClick = {authViewModel.login(email, password)},colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor = MaterialTheme.colorScheme.primary,
+                disabledContentColor = MaterialTheme.colorScheme.onPrimary)
 
-            },
+            ,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)

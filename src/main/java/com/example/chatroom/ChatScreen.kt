@@ -1,9 +1,12 @@
+@file:Suppress("UNREACHABLE_CODE")
+
 package com.example.chatroom
 
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,9 +33,11 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -55,9 +60,14 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatScreen(navController: NavController ,roomID : String , roomName : String,messageViewModel: MessageViewModel) {
+    val colorScheme = MaterialTheme.colorScheme
     var text by remember { mutableStateOf("") }
     val messages by messageViewModel.messages.observeAsState(emptyList())
     val coroutineScope = rememberCoroutineScope()
+    var someoneIsTyping by remember { mutableStateOf(false) }
+    val currentUser by messageViewModel.currentUser.observeAsState()
+
+
 
 //    val scaffoldState = rememberScaffoldState()
     val listState = rememberLazyListState()
@@ -70,6 +80,18 @@ fun ChatScreen(navController: NavController ,roomID : String , roomName : String
         }
     }
 //    val imeBottom = WindowInsets.ime.getBottom(LocalDensity.current) //every time the keyboard height changes, the list scrolls to the latest message.
+    LaunchedEffect(currentUser){
+        currentUser?.let {
+            messageViewModel.observeTypingStatus(
+                roomId = roomID,
+                currentUserID = it.email,
+                onTypingChanged = { isTyping->
+                    someoneIsTyping = isTyping
+
+                }
+            )
+        }
+    }
 
     LaunchedEffect(messages.size){
         if (messages.isNotEmpty()) {
@@ -87,7 +109,9 @@ fun ChatScreen(navController: NavController ,roomID : String , roomName : String
     Scaffold(topBar = { TopChatBar(roomName) { navController.navigate(Screen.ChatRoomsScreen.route)} }) {
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(it)) {
+            .padding(it)
+            .background(colorScheme.background)) {
+
             Column(modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()) {
@@ -101,19 +125,41 @@ fun ChatScreen(navController: NavController ,roomID : String , roomName : String
                         )
                     }
                 }
+                if (someoneIsTyping) {
+                    Text(
+                        text = "Someone is typing...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
                 Surface(modifier = Modifier
-                    .navigationBarsPadding().imePadding()
-                    .padding(10.dp).border(width = 2.dp,Color.Black,shape = RoundedCornerShape(5.dp))) {
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(10.dp)
+                    .border(
+                        width = 2.dp,
+                        color = colorScheme.outline,
+                        shape = RoundedCornerShape(5.dp)
+                    )) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         BasicTextField(
                             value = text,
-                            onValueChange = { text = it },
+                            onValueChange = { text = it
+                                currentUser?.let { it1 ->
+                                    messageViewModel.setTypingStatus(roomID,
+                                        it1.email,it.isNotEmpty())
+                                }
+                            },
+                            textStyle = LocalTextStyle.current.copy(
+                                color = MaterialTheme.colorScheme.onSurface
+                            ),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(56.dp).padding(12.dp)
+                                .height(56.dp)
+                                .padding(12.dp)
                         )
 
                         IconButton(onClick = {
@@ -149,10 +195,11 @@ fun ChatScreen(navController: NavController ,roomID : String , roomName : String
                 // ✅ FAB to scroll to bottom
                 if (showScrollToBottomButton) {
                     AnimatedVisibility(visible = showScrollToBottomButton,
-                        modifier = Modifier.align(Alignment.BottomEnd).
-                        navigationBarsPadding()
-                        .imePadding()
-                        .padding(end = 16.dp, bottom = 70.dp)) {
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .navigationBarsPadding()
+                            .imePadding()
+                            .padding(end = 16.dp, bottom = 70.dp)) {
                              FloatingActionButton(
                             onClick = {
                                 coroutineScope.launch {
@@ -164,12 +211,12 @@ fun ChatScreen(navController: NavController ,roomID : String , roomName : String
                             modifier = Modifier
 
                                 .size(30.dp), // Adjust bottom to stay above keyboard/input
-                            containerColor = Color.Black,
+                            containerColor = colorScheme.primary,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
                                 contentDescription = "Scroll to Bottom",
-                                tint = Color.White
+                                tint = colorScheme.onPrimary
                             )
                         }
                     }

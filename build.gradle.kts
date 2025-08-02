@@ -53,14 +53,20 @@ dependencies {
 //    // If using Jetpack ViewModel with Hilt:
 //    implementation ("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
 //    kapt ("androidx.hilt:hilt-compiler:1.0.0")
-    implementation(libs.hilt.android)   // ✅ Hilt core library
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.foundation.android)   // ✅ Hilt core library
     kapt(libs.hilt.compiler)            // ✅ Hilt annotation processor
+
+    implementation ("androidx.compose.material3:material3:<version>")
+    implementation ("androidx.compose.material:material-icons-extended:<version>")
+
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.2")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-database-ktx:20.2.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

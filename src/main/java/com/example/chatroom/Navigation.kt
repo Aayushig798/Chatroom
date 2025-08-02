@@ -45,7 +45,7 @@ fun Navigation (navController : NavHostController,authViewModel: AuthViewModel,r
         }
         composable(Screen.ChatRoomsScreen.route){
             ChatRoomsListScreen(
-                navController ,roomViewModel){
+                navController ,authViewModel,roomViewModel){
                 navController.navigate("${Screen.ChatScreen.route}/${it.id}/${it.name}")
             }
         }

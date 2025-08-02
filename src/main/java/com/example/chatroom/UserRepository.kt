@@ -9,6 +9,7 @@ import javax.inject.Inject
 class UserRepository @Inject constructor(private val auth: FirebaseAuth,
                                          private val firestore: FirebaseFirestore
 ) {
+    //ACCOUNT CREATION
     suspend fun signUp(
         email: String,
         password: String,
@@ -78,6 +79,10 @@ class UserRepository @Inject constructor(private val auth: FirebaseAuth,
     } catch (e: Exception) {
         Log.e("UserRepository", "Error in getCurrentUser", e)
         Result.Error(e)
+    }
+
+    suspend fun logOut(){
+        auth.signOut()
     }
 
 }
